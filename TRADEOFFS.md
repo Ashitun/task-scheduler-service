@@ -1,6 +1,31 @@
 # Tradeoffs
 
-1. SQLite instead of PostgreSQL: SQLite makes the assignment easy to run from a clean clone, but PostgreSQL is better for multi-instance production deployments.
-2. Polling scheduler instead of a message queue: simpler and easier to explain, but less scalable.
-3. FIFO scheduling instead of priority scheduling: predictable and simple, but important tasks cannot jump the queue.
-4. Restarting interrupted RUNNING tasks as WAITING: avoids losing tasks, but a task may be executed twice if it had partially completed before shutdown.
+## 1. MySQL
+
+MySQL is used for persistent task storage.
+
+**Tradeoff:** PostgreSQL could provide more advanced features for larger production systems.
+
+## 2. Polling Scheduler
+
+The scheduler regularly checks the database for tasks that are ready to run.
+
+**Tradeoff:** This is simple but may create extra database queries. A message queue could be more scalable.
+
+## 3. FIFO Scheduling
+
+Tasks are processed in creation order.
+
+**Tradeoff:** Important tasks cannot move ahead of older tasks.
+
+## 4. Restart Recovery
+
+Tasks that were `RUNNING` during a shutdown are changed back to `WAITING`.
+
+**Tradeoff:** A task may run again if it was partially completed before the shutdown.
+
+## 5. Frontend Polling
+
+The React frontend regularly requests task updates from the backend.
+
+**Tradeoff:** WebSockets could provide more efficient real-time updates.
